@@ -1,0 +1,152 @@
+@startuml
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 15
+skinparam classFontSize 12
+skinparam classFontName Arial
+
+' === HUB таблицы ===
+entity hub_sale {
+  * sale_sk : text <<PK>>
+  --
+  sale_id : int
+  load_datetime : timestamp
+  source : text
+}
+
+entity hub_product {
+  * product_sk : text <<PK>>
+  --
+  product_id : int
+  load_datetime : timestamp
+  source : text
+}
+
+entity hub_shipment {
+  * shipment_sk : text <<PK>>
+  --
+  shipment_id : int
+  load_datetime : timestamp
+  source : text
+}
+
+entity hub_customer {
+  * customer_sk : text <<PK>>
+  --
+  customer_id : int
+  load_datetime : timestamp
+  source : text
+}
+
+' === LINK таблицы ===
+entity link_sale_product {
+  * sale_product_sk : text <<PK>>
+  --
+  sale_sk : text
+  product_sk : text
+  is_deleted : boolean
+  load_datetime : timestamp
+  source : text
+}
+
+entity link_sale_shipment {
+  * sale_shipment_sk : text <<PK>>
+  --
+  sale_sk : text
+  shipment_sk : text
+  is_deleted : boolean
+  load_datetime : timestamp
+  source : text
+}
+
+entity link_sale_customer {
+  * sale_customer_sk : text <<PK>>
+  --
+  sale_sk : text
+  customer_sk : text
+  is_deleted : boolean
+  load_datetime : timestamp
+  source : text
+}
+
+' === SAT таблицы ===
+entity sat_sale_metrics {
+  * sale_sk : text <<PK>>
+  * load_datetime : timestamp <<PK>>
+  --
+  source : text
+  sales : decimal
+  quantity : int
+  discount : decimal
+  profit : decimal
+  effective_from : date
+  effective_to : date
+  hash_diff : text
+}
+
+entity sat_product_category {
+  * product_sk : text
+  * load_datetime : timestamp <<PK>>
+  --
+  source : text
+  category : text
+  sub_category : text
+  effective_from : date
+  effective_to : date
+  hash_diff : text
+}
+
+entity sat_shipment_mode {
+  * shipment_sk : text
+  * load_datetime : timestamp <<PK>>
+  --
+  source : text
+  ship_mode : text
+  effective_from : date
+  effective_to : date
+  hash_diff : text
+}
+
+entity sat_customer_region {
+  * customer_sk : text
+  * load_datetime : timestamp <<PK>>
+  --
+  source : text
+  country : text
+  region : text
+  state : text
+  city : text
+  postal_code : int
+  effective_from : date
+  effective_to : date
+  hash_diff : text
+}
+
+entity sat_customer_segment {
+  * customer_sk : text
+  * load_datetime : timestamp <<PK>>
+  --
+  source : text
+  segment : text
+  effective_from : date
+  effective_to : date
+  hash_diff : text
+}
+
+' === Связи между HUB и SAT таблицами ===
+hub_sale ||--o{ sat_sale_metrics
+hub_product ||--o{ sat_product_category
+hub_shipment ||--o{ sat_shipment_mode
+hub_customer ||--o{ sat_customer_region
+hub_customer ||--o{ sat_customer_segment
+
+' === Связи между HUB и LINK таблицами ===
+hub_sale ||--o{ link_sale_product
+hub_sale ||--o{ link_sale_shipment
+hub_sale ||--o{ link_sale_customer
+
+hub_product ||--o{ link_sale_product
+hub_shipment ||--o{ link_sale_shipment
+hub_customer ||--o{ link_sale_customer
+
+@enduml
