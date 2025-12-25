@@ -1,0 +1,249 @@
+@startuml
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 15
+skinparam classFontSize 12
+skinparam classFontName Arial
+
+' === HUB таблицы ===
+entity hub_customer {
+  * customer_sk : varchar(255) <<PK>>
+  --
+  customer_bk : int
+  load_datetime : timestamp
+  source : varchar(255)
+}
+
+entity hub_supplier {
+  * supplier_sk : varchar(255) <<PK>>
+  --
+  supplier_bk : int
+  load_datetime : timestamp
+  source : varchar(255)
+}
+
+entity hub_part {
+  * part_sk : varchar(255) <<PK>>
+  --
+  part_bk : int
+  load_datetime : timestamp
+  source : varchar(255)
+}
+
+entity hub_order {
+  * order_sk : varchar(255) <<PK>>
+  --
+  order_bk : int
+  load_datetime : timestamp
+  source : varchar(255)
+}
+
+entity hub_nation {
+  * nation_sk : varchar(255) <<PK>>
+  --
+  nation_bk : int
+  load_datetime : timestamp
+  source : varchar(255)
+}
+
+' === LINK таблицы ===
+entity link_order_part_supplier {
+  * order_part_supplier_sk : varchar(255) <<PK>>
+  --
+  order_sk : varchar(255)
+  part_sk : varchar(255)
+  supplier_sk : varchar(255)
+  is_deleted : boolean
+  load_datetime : timestamp
+  source : varchar(255)
+}
+
+entity link_customer_order {
+  * customer_order_sk : varchar(255) <<PK>>
+  --
+  customer_sk : varchar(255)
+  order_sk : varchar(255)
+  is_deleted : boolean
+  load_datetime : timestamp
+  source : varchar(255)
+}
+
+entity link_part_supplier {
+  * part_supplier_sk : varchar(255) <<PK>>
+  --
+  part_sk : varchar(255)
+  supplier_sk : varchar(255)
+  is_deleted : boolean
+  load_datetime : timestamp
+  source : varchar(255)
+}
+
+entity link_supplier_nation {
+  * supplier_nation_sk : varchar(255) <<PK>>
+  --
+  supplier_sk : varchar(255)
+  nation_sk : varchar(255)
+  is_deleted : boolean
+  load_datetime : timestamp
+  source : varchar(255)
+}
+
+entity link_customer_nation {
+  * customer_nation_sk : varchar(255) <<PK>>
+  --
+  customer_sk : varchar(255)
+  nation_sk : varchar(255)
+  is_deleted : boolean
+  load_datetime : timestamp
+  source : varchar(255)
+}
+
+' === SAT таблицы ===
+entity sat_customer_personal_data {
+  * customer_sk : varchar(255) <<PK>>
+  * load_datetime : timestamp <<PK>>
+  --
+  source : varchar(255)
+  name : varchar(255)
+  address : varchar(255)
+  phone : varchar(255)
+  acct_bal : decimal(38,2)
+  mktsegment : varchar(255)
+  comment : varchar(255)
+  effective_from : date
+  effective_to : date
+  hash_diff : varchar(255)
+}
+
+entity sat_supplier_information {
+  * supplier_sk : varchar(255) <<PK>>
+  * load_datetime : timestamp <<PK>>
+  --
+  source : varchar(255)
+  name : varchar(255)
+  address : varchar(255)
+  phone : varchar(255)
+  acct_bal : decimal(38,2)
+  comment : varchar(255)
+  effective_from : date
+  effective_to : date
+  hash_diff : varchar(255)
+}
+
+entity sat_part_description {
+  * part_sk : varchar(255)
+  * load_datetime : timestamp <<PK>>
+  --
+  source : varchar(255)
+  name : varchar(255)
+  mfgr : varchar(255)
+  brand : varchar(255)
+  type : varchar(255)
+  size : int
+  retailprice : decimal(38,2)
+  container : varchar(255)
+  comment : varchar(255)
+  effective_from : date
+  effective_to : date
+  hash_diff : varchar(255)
+}
+
+entity sat_order_summary {
+  * order_sk : varchar(255)
+  * load_datetime : timestamp <<PK>>
+  --
+  source : varchar(255)
+  orderstatus : varchar(255)
+  totalprice : decimal(38,2)
+  orderdate : date
+  orderpriority : varchar(255)
+  clerk : varchar(255)
+  shippriority : int
+  comment : varchar(255)
+  effective_from : date
+  effective_to : date
+  hash_diff : varchar(255)
+}
+
+entity sat_nation_region {
+  * nation_sk : varchar(255)
+  * load_datetime : timestamp <<PK>>
+  --
+  source : varchar(255)
+  name : varchar(255)
+  region : varchar(255)
+  comment : varchar(255)
+  effective_from : date
+  effective_to : date
+  hash_diff : varchar(255)
+}
+
+entity sat_part_supplier {
+  * part_supplier_sk : varchar(255)
+  * load_datetime : timestamp <<PK>>
+  --
+  source : varchar(255)
+  avail_qty : int
+  supply_cost : decimal(38,2)
+  effective_from : date
+  effective_to : date
+  hash_diff : varchar(255)
+}
+
+entity sat_order_item {
+  * order_part_supplier_sk : varchar(255)
+  * load_datetime : timestamp <<PK>>
+  --
+  source : varchar(255)
+  linenumber : int
+  quantity : decimal(38,2)
+  extendedprice : decimal(38,2)
+  discount : decimal(38,2)
+  tax : decimal(38,2)
+  returnflag : boolean
+  linestatus : varchar(255)
+  shipdate : date
+  commitdate : date
+  receiptdate : date
+  shipinstruct : varchar(255)
+  shipmode : varchar(255)
+  comment : varchar(255)
+  effective_from : date
+  effective_to : date
+  hash_diff : varchar(255)
+}
+
+' === Связи HUB - LINK ===
+hub_customer ||--o{ link_customer_order
+hub_customer ||--o{ link_customer_nation
+
+hub_supplier ||--o{ link_order_part_supplier
+hub_supplier ||--o{ link_part_supplier
+hub_supplier ||--o{ link_supplier_nation
+
+hub_part ||--o{ link_order_part_supplier
+hub_part ||--o{ link_part_supplier
+
+hub_order ||--o{ link_order_part_supplier
+hub_order ||--o{ link_customer_order
+
+hub_nation ||--o{ link_supplier_nation
+hub_nation ||--o{ link_customer_nation
+
+' === Связи HUB - SAT ===
+hub_customer ||--o{ sat_customer_personal_data
+
+hub_supplier ||--o{ sat_supplier_information
+
+hub_part ||--o{ sat_part_description
+
+hub_order ||--o{ sat_order_summary
+
+hub_nation ||--o{ sat_nation_region
+
+' === Связи LINK - SAT ===
+link_order_part_supplier ||--o{ sat_order_item
+
+link_part_supplier ||--o{ sat_part_supplier
+
+@enduml
